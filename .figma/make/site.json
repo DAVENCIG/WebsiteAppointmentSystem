@@ -1,0 +1,10 @@
+{
+  "description": "Enhance cognitive skills with engaging pattern recognition games and memory exercises designed for users of all ages seeking to boost brain function.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
