@@ -1,91 +1,109 @@
 import { useState } from "react"
 import type { Page } from "../types"
-import { SERVICES } from "../constants"
-import { BtnPrimary } from "../components/ui"
-import PamisaSection from "../components/PamisaSection"
+import { ENABLED_MASS_REQUESTS, SERVICES } from "../constants"
+import { BtnPrimary, BtnSecondary, Card, PageBanner } from "../components/ui"
+import StepNav from "../components/StepNav"
+import ServiceIcon from "../components/ServiceIcon"
 
-export default function ServicesPage({ setPage, onSelect }: {
-  setPage: (p: Page) => void
+export default function ServicesPage({
+  setPage,
+  onSelect,
+}: {
+  setPage: (page: Page) => void
   onSelect: (serviceId: string) => void
 }) {
   const [selected, setSelected] = useState("")
-
-  const proceed = () => {
-    if (!selected) return
-    onSelect(selected)
-    setPage("wizard")
-  }
+  const services = [...SERVICES, ...ENABLED_MASS_REQUESTS]
+  const selectedService = services.find(service => service.id === selected)
 
   return (
-    <div className="max-w-3xl mx-auto space-y-10 page-enter">
+    <div className="max-w-5xl mx-auto page-enter">
+      <StepNav step={1} />
+      <PageBanner
+        title="Request a Service"
+        subtitle="Choose the record or certification you need. You will review all information before anything is submitted."
+      />
 
-      {/* Certificate section */}
-      <section>
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-stone-900">Request a Certificate</h1>
-          <p className="text-stone-500 text-sm mt-1.5 leading-relaxed">
-            Select the certificate you need. The 5-step process takes about 3 minutes.
-          </p>
-          <div className="h-1 w-10 rounded-full bg-amber-500 mt-3" />
-        </div>
-
-        <div className="grid sm:grid-cols-2 gap-3">
-          {SERVICES.map(s => {
-            const active = selected === s.id
-            return (
-              <button
-                key={s.id}
-                onClick={() => setSelected(s.id)}
-                className={`text-left border-2 rounded-2xl p-4 transition-all bg-white
-                  ${active
-                    ? "border-amber-500 bg-amber-50 shadow-md"
-                    : "border-stone-200 hover:border-amber-300 hover:shadow-sm"
-                  }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className={`text-sm font-semibold leading-tight ${active ? "text-amber-800" : "text-stone-800"}`}>
-                      {s.label}
-                    </div>
-                    <div className="text-xs text-stone-400 mt-1 leading-snug">{s.desc}</div>
-                  </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors
-                    ${active ? "border-amber-500 bg-amber-500" : "border-stone-300"}`}
-                  >
-                    {active && (
-                      <svg viewBox="0 0 24 24" className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </div>
-                </div>
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="flex items-center justify-between mt-6">
-          <button onClick={() => setPage("home")} className="text-sm text-stone-400 hover:text-stone-700 transition-colors">
-            &larr; Back
-          </button>
-          <BtnPrimary onClick={proceed} disabled={!selected} size="lg">
-            Continue &rarr;
-          </BtnPrimary>
-        </div>
-      </section>
-
-      {/* Divider */}
-      <div className="flex items-center gap-4 text-xs text-stone-400">
-        <div className="flex-1 h-px bg-stone-200" />
-        <span className="uppercase tracking-widest font-bold">or</span>
-        <div className="flex-1 h-px bg-stone-200" />
+      <div className="grid sm:grid-cols-3 gap-3 mb-7" aria-label="What to expect">
+        {[
+          ["About 5 minutes", "Your entries stay available as you move between steps."],
+          ["No online payment", "Applicable transactions are completed at the parish office."],
+          ["Not automatic approval", "The parish office reviews every submitted request."],
+        ].map(([title, text]) => (
+          <div key={title} className="rounded-2xl bg-stone-100 border border-stone-200 p-4">
+            <p className="font-bold text-stone-900">{title}</p>
+            <p className="text-sm text-stone-600 leading-relaxed mt-1">{text}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Pamisa */}
-      <section>
-        <PamisaSection />
-      </section>
+      <div className="grid md:grid-cols-2 gap-4 mb-8">
+        {services.map((service, index) => {
+          const active = selected === service.id
+          return (
+            <Card
+              key={service.id}
+              className={active ? "border-amber-500 ring-2 ring-amber-200 shadow-md" : "hover:border-amber-300 hover:shadow-sm"}
+            >
+              <button
+                type="button"
+                onClick={() => setSelected(service.id)}
+                aria-pressed={active}
+                className="w-full h-full text-left p-6 rounded-2xl"
+              >
+                <div className="flex justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                        active ? "bg-amber-700 text-white" : "bg-amber-100 text-amber-800"
+                      }`}>
+                        <ServiceIcon serviceId={service.id} />
+                      </span>
+                      <p className="text-xs font-bold tracking-widest text-amber-700">
+                        {String(index + 1).padStart(2, "0")}
+                      </p>
+                    </div>
+                    <h2 className="text-lg font-bold text-stone-900">{service.label}</h2>
+                    <p className="text-base text-stone-600 leading-relaxed mt-2">{service.desc}</p>
+                  </div>
+                  <span
+                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      active ? "bg-amber-700 border-amber-700 text-white" : "border-stone-300"
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {active ? "✓" : ""}
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-amber-800 mt-5 pt-4 border-t border-stone-100">
+                  {service.appointmentRequired ? "Preferred schedule required" : "No appointment required"}
+                </p>
+              </button>
+            </Card>
+          )
+        })}
+      </div>
 
+      {ENABLED_MASS_REQUESTS.length === 0 && (
+        <div className="bg-stone-100 border border-stone-200 rounded-xl p-4 mb-8 text-base text-stone-600">
+          No parish-enabled Mass request types are currently available online.
+        </div>
+      )}
+
+      <div className="sticky bottom-4 bg-white/95 backdrop-blur border border-stone-200 rounded-2xl shadow-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div aria-live="polite">
+          <p className="text-sm font-bold text-stone-500">Your selection</p>
+          <p className="text-lg font-bold text-stone-950 mt-1">
+            {selectedService?.label ?? "Choose a service above"}
+          </p>
+        </div>
+        <div className="flex flex-col-reverse sm:flex-row gap-3">
+          <BtnSecondary onClick={() => setPage("home")}>Back to Home</BtnSecondary>
+          <BtnPrimary onClick={() => selected && onSelect(selected)} disabled={!selected} size="lg">
+            Continue to Your Information
+          </BtnPrimary>
+        </div>
+      </div>
     </div>
   )
 }

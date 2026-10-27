@@ -3,37 +3,43 @@ import type { Step } from "../types"
 
 export default function StepNav({ step }: { step: Step }) {
   return (
-    <nav className="flex items-start w-full mb-10 overflow-x-auto pb-1">
-      {WIZARD_STEPS.map((label, i) => {
-        const num = (i + 1) as Step
-        const done = num < step
-        const active = num === step
-
-        return (
-          <div key={label} className="flex items-center flex-1 min-w-0 last:flex-none">
-            <div className="flex flex-col items-center gap-2 flex-shrink-0">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 shadow-sm transition-all
-                  ${done   ? "bg-amber-600 border-amber-600 text-white shadow-amber-200"
-                  : active ? "bg-white border-amber-500 text-amber-600 shadow-amber-100"
-                  :          "bg-white border-stone-200 text-stone-400"}`}
-              >
-                {done ? "✓" : num}
-              </div>
+    <nav aria-label="Request progress" className="mb-10">
+      <div className="sm:hidden bg-white border border-stone-200 rounded-2xl p-4 mb-3">
+        <p className="text-sm font-bold text-amber-800">Step {step} of {WIZARD_STEPS.length}</p>
+        <p className="text-lg font-bold text-stone-950 mt-1">{WIZARD_STEPS[step - 1]}</p>
+      </div>
+      <ol className="hidden sm:flex overflow-x-auto rounded-2xl border border-stone-200 bg-white shadow-sm">
+        {WIZARD_STEPS.map((label, index) => {
+          const number = (index + 1) as Step
+          const done = number < step
+          const active = number === step
+          return (
+            <li
+              key={label}
+              aria-current={active ? "step" : undefined}
+              className={`relative flex min-w-44 flex-1 items-center gap-3 p-4 border-r border-stone-200 last:border-r-0 ${
+                active ? "bg-amber-50" : ""
+              }`}
+            >
               <span
-                className={`text-xs font-semibold hidden sm:block text-center leading-tight max-w-[60px]
-                  ${done ? "text-amber-700" : active ? "text-amber-600" : "text-stone-400"}`}
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold ${
+                  done
+                    ? "border-amber-700 bg-amber-700 text-white"
+                    : active
+                      ? "border-amber-700 bg-white text-amber-800"
+                      : "border-stone-300 bg-white text-stone-500"
+                }`}
+                aria-hidden="true"
               >
+                {done ? "✓" : number}
+              </span>
+              <span className={`text-sm font-bold leading-tight ${active ? "text-amber-950" : done ? "text-stone-700" : "text-stone-500"}`}>
                 {label}
               </span>
-            </div>
-
-            {i < WIZARD_STEPS.length - 1 && (
-              <div className={`flex-1 h-0.5 mx-2 mb-6 rounded-full transition-colors ${done ? "bg-amber-400" : "bg-stone-200"}`} />
-            )}
-          </div>
-        )
-      })}
+            </li>
+          )
+        })}
+      </ol>
     </nav>
   )
 }

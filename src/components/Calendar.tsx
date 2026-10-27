@@ -1,94 +1,95 @@
-import { useState, useMemo } from "react"
+import { useMemo, useState } from "react"
 
 interface CalendarProps {
   value: string
-  onChange: (iso: string) => void
+  onChange: (value: string) => void
+  blockedDates?: string[]
 }
 
-const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-export default function Calendar({ value, onChange }: CalendarProps) {
+export function isAvailableDate(iso: string) {
+  const date = new Date(`${iso}T12:00:00`)
+  const day = date.getDay()
+  return day >= 2 && day <= 6
+}
+
+export default function Calendar({ value, onChange, blockedDates = [] }: CalendarProps) {
   const today = new Date()
   const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
-
   const year = cursor.getFullYear()
   const month = cursor.getMonth()
   const firstWeekday = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
-
-  const cells = useMemo<(number | null)[]>(() => {
-    const arr: (number | null)[] = Array(firstWeekday).fill(null)
-    for (let d = 1; d <= daysInMonth; d++) arr.push(d)
-    return arr
-  }, [firstWeekday, daysInMonth])
-
-  const toISO = (d: number) =>
-    `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`
-
-  const isPast = (d: number) =>
-    new Date(year, month, d) < new Date(today.getFullYear(), today.getMonth(), today.getDate())
-
-  const canGoPrev =
-    year > today.getFullYear() || (year === today.getFullYear() && month > today.getMonth())
-
-  const monthLabel = cursor.toLocaleString("default", { month: "long", year: "numeric" })
+  const cells = useMemo(
+    () => [...Array(firstWeekday).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)],
+    [firstWeekday, daysInMonth],
+  )
+  const toISO = (day: number) =>
+    `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  const canGoPrevious = cursor > new Date(today.getFullYear(), today.getMonth(), 1)
 
   return (
-    <div className="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm w-full max-w-[300px]">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-stone-50 border-b border-stone-200">
+    <div className="border border-stone-200 rounded-2xl overflow-hidden bg-white w-full max-w-md">
+      <div className="flex items-center justify-between p-4 bg-stone-50 border-b border-stone-200">
         <button
+          type="button"
           onClick={() => setCursor(new Date(year, month - 1, 1))}
-          disabled={!canGoPrev}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-stone-500
-            hover:bg-stone-200 disabled:opacity-30 transition text-base font-bold"
+          disabled={!canGoPrevious}
+          aria-label="Previous month"
+          className="min-w-11 min-h-11 rounded-lg border border-stone-200 disabled:opacity-30"
         >
-          ‹
+          ←
         </button>
-        <span className="text-sm font-semibold text-stone-800">{monthLabel}</span>
+        <strong className="text-stone-900">
+          {cursor.toLocaleDateString("en-PH", { month: "long", year: "numeric" })}
+        </strong>
         <button
+          type="button"
           onClick={() => setCursor(new Date(year, month + 1, 1))}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-stone-500
-            hover:bg-stone-200 transition text-base font-bold"
+          aria-label="Next month"
+          className="min-w-11 min-h-11 rounded-lg border border-stone-200"
         >
-          ›
+          →
         </button>
       </div>
-
-      {/* Day labels */}
       <div className="grid grid-cols-7 border-b border-stone-100">
-        {DAYS.map(d => (
-          <div key={d} className="py-2 text-center text-xs font-semibold text-stone-400">{d}</div>
-        ))}
+        {DAYS.map(day => <div key={day} className="py-3 text-center text-xs font-bold text-stone-500">{day}</div>)}
       </div>
-
-      {/* Day cells */}
-      <div className="grid grid-cols-7 gap-0.5 p-2">
-        {cells.map((d, i) => {
-          if (!d) return <div key={`e-${i}`} />
-          const iso = toISO(d)
-          const past = isPast(d)
+      <div className="grid grid-cols-7 gap-1 p-3">
+        {cells.map((day, index) => {
+          if (!day) return <div key={`empty-${index}`} />
+          const iso = toISO(day)
+          const past = new Date(year, month, day) < todayStart
+          const blocked = blockedDates.includes(iso)
+          const unavailable = past || !isAvailableDate(iso) || blocked
           const selected = value === iso
-
           return (
             <button
+              type="button"
               key={iso}
-              disabled={past}
+              disabled={unavailable}
               onClick={() => onChange(iso)}
-              className={`
-                h-9 w-full rounded-lg text-sm font-medium transition-colors
-                ${selected
-                  ? "bg-amber-600 text-white font-bold"
-                  : past
-                  ? "text-stone-300 cursor-not-allowed"
-                  : "text-stone-700 hover:bg-amber-50 hover:text-amber-800"
-                }
-              `}
+              aria-label={`${iso}, ${unavailable ? "unavailable" : selected ? "selected" : "available"}`}
+              title={blocked ? "Unavailable due to an existing appointment or parish activity" : unavailable ? "Closed or unavailable" : "Available"}
+              className={`min-h-11 rounded-lg text-sm font-semibold border ${
+                selected
+                  ? "bg-amber-700 text-white border-amber-700"
+                  : unavailable
+                    ? "bg-stone-100 text-stone-400 border-stone-100 line-through cursor-not-allowed"
+                    : "bg-white text-stone-800 border-stone-200 hover:border-amber-500 hover:bg-amber-50"
+              }`}
             >
-              {d}
+              {day}
             </button>
           )
         })}
+      </div>
+      <div className="px-4 py-3 bg-stone-50 border-t border-stone-200 flex flex-wrap gap-4 text-xs text-stone-600">
+        <span><strong>Available:</strong> bordered date</span>
+        <span><strong>Unavailable:</strong> crossed out</span>
+        <span><strong>Selected:</strong> gold</span>
       </div>
     </div>
   )

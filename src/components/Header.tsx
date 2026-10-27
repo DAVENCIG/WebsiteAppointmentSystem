@@ -3,99 +3,98 @@ import logoSrc from "../imports/logo.png"
 import type { Page } from "../types"
 
 const NAV: { label: string; page: Page }[] = [
-  { label: "Home",         page: "home" },
-  { label: "About",        page: "about" },
-  { label: "Appointment",  page: "services" },
-  { label: "Track Status", page: "status" },
-  { label: "Campo Santo",  page: "search" },
-  { label: "Contact",      page: "contact" },
+  { label: "Home", page: "home" },
+  { label: "About", page: "about" },
+  { label: "Track", page: "status" },
+  { label: "Contact", page: "contact" },
 ]
 
-export default function Header({ page, setPage }: { page: Page; setPage: (p: Page) => void }) {
+export default function Header({ page, setPage }: { page: Page; setPage: (page: Page) => void }) {
   const [open, setOpen] = useState(false)
+  const go = (next: Page) => {
+    setPage(next)
+    setOpen(false)
+  }
+  const requestActive = page === "services" || page === "wizard"
 
   return (
-    <header className="bg-white sticky top-0 z-40 shadow-sm">
-      {/* Top ribbon */}
-      <div className="bg-stone-900 text-stone-300 text-[10px] font-medium tracking-wider px-6 py-1.5 hidden sm:flex items-center justify-between">
-        <span>Diocese of Daet &nbsp;·&nbsp; Parish of Vinzons, Camarines Norte</span>
-        <span>(054) 000-0000 &nbsp;·&nbsp; parishoffice@pdspa.ph</span>
-      </div>
+    <header className="sticky top-0 z-40 bg-amber-50/90 backdrop-blur-xl border-b border-amber-200/70">
+      <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-12 py-3">
+        <div className="flex items-center gap-3 sm:gap-5">
+          <button onClick={() => go("home")} className="flex items-center gap-3 text-left rounded-xl" aria-label="Go to SARMS home">
+            <img src={logoSrc} alt="" className="h-12 w-12 sm:h-14 sm:w-14 object-contain" />
+            <span className="leading-tight">
+              <span className="block font-display text-sm sm:text-base font-extrabold text-stone-950 tracking-wide">
+                Parroquia de San Pedro Apostol
+              </span>
+              <span className="block text-xs font-semibold text-amber-800 mt-1">Parish Services</span>
+            </span>
+          </button>
 
-      <div className="max-w-6xl mx-auto px-6 h-18 flex items-center gap-5 py-3">
-        {/* Logo */}
-        <button
-          onClick={() => { setPage("home"); setOpen(false) }}
-          className="flex-shrink-0 hover:opacity-90 transition"
-        >
-          <img src={logoSrc} alt="Parish Seal" className="h-14 w-14 object-contain drop-shadow-sm" />
-        </button>
+          <nav className="hidden lg:flex items-center gap-1 mx-auto rounded-xl bg-white/80 border border-stone-200 p-1 shadow-sm" aria-label="Main navigation">
+            {NAV.map(item => {
+              const active = page === item.page
+              return (
+                <button
+                  key={item.page}
+                  onClick={() => go(item.page)}
+                  aria-current={active ? "page" : undefined}
+                  className={`min-h-10 px-5 rounded-lg text-sm font-bold ${
+                    active ? "bg-stone-900 text-white" : "text-stone-600 hover:bg-stone-100 hover:text-stone-950"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              )
+            })}
+          </nav>
 
-        {/* Wordmark */}
-        <button
-          onClick={() => { setPage("home"); setOpen(false) }}
-          className="text-left leading-tight mr-auto"
-        >
-          <div className="text-[15px] font-bold text-stone-900 tracking-tight">
-            Parroquia de San Pedro Apostol
-          </div>
-          <div className="text-[11px] text-amber-700 font-semibold tracking-wide mt-0.5">
-            Sacramental Records &amp; Appointment System
-          </div>
-        </button>
-
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-0.5">
-          {NAV.map(n => (
+          <div className="hidden sm:flex items-center gap-3 ml-auto lg:ml-0">
+            <span className="hidden xl:block text-xs text-stone-500 text-right">
+              Tue–Sat<br /><strong className="text-stone-800">8 AM–4 PM</strong>
+            </span>
             <button
-              key={n.page}
-              onClick={() => setPage(n.page)}
-              className={`px-3.5 py-2 rounded-lg text-[13px] font-medium transition-colors
-                ${page === n.page
-                  ? "bg-amber-100 text-amber-800 font-semibold"
-                  : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-                }`}
+              onClick={() => go("services")}
+              aria-current={requestActive ? "page" : undefined}
+              className={`min-h-12 px-5 rounded-xl font-bold shadow-sm ${
+                requestActive
+                  ? "bg-amber-100 text-amber-950 ring-2 ring-amber-700"
+                  : "bg-amber-700 text-white hover:bg-amber-800"
+              }`}
             >
-              {n.label}
+              Request a Service
             </button>
-          ))}
-        </nav>
+          </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden flex flex-col justify-center gap-1.5 p-2 rounded-lg text-stone-600 hover:bg-stone-100 transition"
-          onClick={() => setOpen(o => !o)}
-          aria-label="Toggle menu"
-        >
-          <span className="block w-5 h-0.5 bg-current rounded transition-transform origin-center"
-            style={{ transform: open ? "rotate(45deg) translateY(7px)" : "" }} />
-          <span className="block w-5 h-0.5 bg-current rounded transition-opacity"
-            style={{ opacity: open ? 0 : 1 }} />
-          <span className="block w-5 h-0.5 bg-current rounded transition-transform origin-center"
-            style={{ transform: open ? "rotate(-45deg) translateY(-7px)" : "" }} />
-        </button>
-      </div>
-
-      {/* Gold accent line */}
-      <div className="amber-rule opacity-80" />
-
-      {/* Mobile drawer */}
-      {open && (
-        <div className="md:hidden bg-white border-t border-stone-100 px-4 py-3 flex flex-col gap-1 shadow-xl">
-          {NAV.map(n => (
-            <button
-              key={n.page}
-              onClick={() => { setPage(n.page); setOpen(false) }}
-              className={`text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors
-                ${page === n.page
-                  ? "bg-amber-50 text-amber-800 font-semibold"
-                  : "text-stone-700 hover:bg-stone-50"
-                }`}
-            >
-              {n.label}
-            </button>
-          ))}
+          <button
+            className="lg:hidden ml-auto min-h-11 min-w-16 px-3 rounded-xl border border-stone-300 bg-white text-stone-800 font-bold"
+            onClick={() => setOpen(value => !value)}
+            aria-expanded={open}
+            aria-controls="mobile-navigation"
+          >
+            {open ? "Close" : "Menu"}
+          </button>
         </div>
+      </div>
+
+      {open && (
+        <nav id="mobile-navigation" className="lg:hidden bg-white border-t border-stone-200 px-4 py-4 grid gap-2 shadow-xl" aria-label="Mobile navigation">
+          {[...NAV, { label: "Request a Service", page: "services" as Page }].map(item => {
+            const active = page === item.page || (page === "wizard" && item.page === "services")
+            return (
+              <button
+                key={item.page}
+                onClick={() => go(item.page)}
+                aria-current={active ? "page" : undefined}
+                className={`text-left min-h-12 px-4 rounded-xl text-base font-semibold ${
+                  active ? "bg-amber-100 text-amber-950" : "text-stone-700 hover:bg-stone-100"
+                }`}
+              >
+                {item.label}
+              </button>
+            )
+          })}
+        </nav>
       )}
     </header>
   )

@@ -1,81 +1,46 @@
 import logoSrc from "../imports/logo.png"
-import { QUICK_LINKS } from "../constants"
+import type { Page } from "../types"
 
-const NAV_LINKS = [
-  { label: "Home",            href: "#home" },
-  { label: "About the Parish", href: "#about" },
-  { label: "Request Appointment", href: "#services" },
-  { label: "Track Status",    href: "#status" },
-  { label: "Campo Santo",     href: "#search" },
-  { label: "Contact",         href: "#contact" },
+const LINKS: { label: string; page: Page }[] = [
+  { label: "About PdSPA", page: "about" },
+  { label: "Request a Service", page: "services" },
+  { label: "Track Your Request", page: "status" },
+  { label: "Contact", page: "contact" },
 ]
 
-export default function Footer() {
+export default function Footer({ setPage }: { setPage: (page: Page) => void }) {
   return (
-    <footer className="bg-stone-900 text-stone-400 mt-0 text-xs">
-      {/* Gold rule */}
-      <div className="amber-rule opacity-70" />
-
-      <div className="max-w-6xl mx-auto px-6 pt-10 pb-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {/* Brand */}
-        <div className="sm:col-span-2 lg:col-span-1">
-          <div className="flex items-center gap-3 mb-4">
-            <img src={logoSrc} alt="Parish Seal" className="w-12 h-12 object-contain opacity-75" />
-            <div>
-              <div className="text-stone-200 font-bold text-sm leading-tight">
-                Parroquia de San Pedro Apostol
+    <footer className="bg-stone-950 text-stone-300">
+      <div className="w-full max-w-screen-2xl mx-auto px-5 sm:px-8 lg:px-12 py-12">
+        <div className="grid lg:grid-cols-[1fr_auto] gap-10 items-end">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-4">
+              <img src={logoSrc} alt="" className="w-16 h-16 object-contain" />
+              <div>
+                <p className="font-display font-bold text-white text-lg">Parroquia de San Pedro Apostol</p>
+                <p className="text-sm text-amber-300 mt-1">Vinzons, Camarines Norte</p>
               </div>
-              <div className="text-stone-500 text-[10px] mt-0.5">Diocese of Daet · Est. 1611</div>
             </div>
+            <p className="font-editorial text-lg text-stone-400 leading-relaxed mt-5">
+              Public sacramental request and appointment services for parishioners.
+            </p>
           </div>
-          <p className="text-stone-500 leading-relaxed text-[11px]">
-            Serving the faithful of Vinzons and its surrounding barangays since 1611. Open for transactions Tue–Sat and Sundays at the church door.
-          </p>
-        </div>
-
-        {/* Quick Links */}
-        <div>
-          <h4 className="text-stone-300 font-bold uppercase tracking-widest text-[10px] mb-3">Navigation</h4>
-          <ul className="space-y-2">
-            {NAV_LINKS.map(l => (
-              <li key={l.label}>
-                <a href={l.href} className="hover:text-amber-400 transition-colors leading-none">{l.label}</a>
-              </li>
+          <nav className="grid sm:grid-cols-2 gap-x-8 gap-y-1" aria-label="Footer navigation">
+            {LINKS.map(link => (
+              <button
+                key={link.page}
+                onClick={() => setPage(link.page)}
+                className="min-h-11 text-left font-semibold hover:text-amber-300"
+              >
+                {link.label}
+              </button>
             ))}
-          </ul>
+          </nav>
         </div>
-
-        {/* External links */}
-        <div>
-          <h4 className="text-stone-300 font-bold uppercase tracking-widest text-[10px] mb-3">Resources</h4>
-          <ul className="space-y-2">
-            {QUICK_LINKS.map(l => (
-              <li key={l.label}>
-                <a href={l.href} className="hover:text-amber-400 transition-colors leading-none">{l.label}</a>
-              </li>
-            ))}
-          </ul>
+        <div className="border-t border-stone-800 mt-10 pt-5 text-sm text-stone-500 flex flex-col sm:flex-row justify-between gap-2">
+          <span>© {new Date().getFullYear()} PdSPA · SARMS</span>
+          <span>Online submission is subject to parish office approval.</span>
         </div>
-
-        {/* Contact */}
-        <div>
-          <h4 className="text-stone-300 font-bold uppercase tracking-widest text-[10px] mb-3">Contact</h4>
-          <address className="not-italic space-y-2 text-stone-500 text-[11px] leading-relaxed">
-            <p>Poblacion, Vinzons<br />Camarines Norte, 4614</p>
-            <p>(054) 000-0000</p>
-            <p>parishoffice@pdspa.ph</p>
-            <div className="border-t border-stone-800 pt-2 mt-2">
-              <p className="text-stone-400 font-semibold mb-1">Office Hours</p>
-              <p>Tue–Sat: 8AM–12NN, 1:30–4PM</p>
-              <p>Sun: 5–7:30AM, 3–6PM (church door)</p>
-              <p className="text-red-400">Mon: Day off</p>
-            </div>
-          </address>
-        </div>
-      </div>
-
-      <div className="border-t border-stone-800 py-4 text-center text-stone-600 text-[10px] tracking-wider">
-        © {new Date().getFullYear()} Parroquia de San Pedro Apostol &nbsp;·&nbsp; SARMS &nbsp;·&nbsp; All rights reserved
       </div>
     </footer>
   )

@@ -1,44 +1,113 @@
-// Certificate services only — Pamisa is handled separately
-export const SERVICES = [
-  { id: "baptismal",     label: "Baptismal Certificate",       desc: "Copy of your baptismal record from parish archives" },
-  { id: "confirmation",  label: "Confirmation Certificate",     desc: "Sacrament of confirmation record" },
-  { id: "communion",     label: "First Holy Communion",         desc: "Certificate of first holy communion" },
-  { id: "matrimony",     label: "Certificate of Matrimony",     desc: "Official marriage record from the parish" },
-  { id: "burial",        label: "Certificate of Burial/Death",  desc: "Burial or death certificate from parish records" },
-  { id: "no-record",     label: "Certificate of No Record",     desc: "Certification that no record exists in archives" },
-  { id: "good-standing", label: "Certificate of Good Standing", desc: "Certify active membership in the parish" },
+export interface Service {
+  id: string
+  label: string
+  desc: string
+  appointmentRequired: boolean
+  recordDateLabel: string
+}
+
+export const SERVICES: Service[] = [
+  {
+    id: "baptismal",
+    label: "Baptismal",
+    desc: "Request a copy or certification of a baptismal record.",
+    appointmentRequired: true,
+    recordDateLabel: "Date of Baptism, if known",
+  },
+  {
+    id: "confirmation",
+    label: "Confirmation",
+    desc: "Request a copy or certification of a confirmation record.",
+    appointmentRequired: true,
+    recordDateLabel: "Date of Confirmation, if known",
+  },
+  {
+    id: "communion",
+    label: "First Holy Communion",
+    desc: "Request certification of a First Holy Communion record.",
+    appointmentRequired: true,
+    recordDateLabel: "Date of Communion, if known",
+  },
+  {
+    id: "matrimony",
+    label: "Matrimony",
+    desc: "Initiate a request concerning a parish matrimonial record.",
+    appointmentRequired: true,
+    recordDateLabel: "Date of Matrimony, if known",
+  },
+  {
+    id: "death",
+    label: "Death Certificate",
+    desc: "Request a parish certification of a death record.",
+    appointmentRequired: true,
+    recordDateLabel: "Date of Death, if known",
+  },
+  {
+    id: "no-record",
+    label: "No Record",
+    desc: "Request certification that a searched sacramental record was not found.",
+    appointmentRequired: true,
+    recordDateLabel: "Approximate record date",
+  },
+  {
+    id: "good-standing",
+    label: "Good Standing / Membership",
+    desc: "Request certification of parish membership or good standing.",
+    appointmentRequired: true,
+    recordDateLabel: "Membership start date, if known",
+  },
 ]
 
-export const QUICK_LINKS = [
-  { label: "PdSPA Official Facebook Page", href: "#" },
-  { label: "SOCCOMM Facebook Page",        href: "#" },
-  { label: "Coro de San Pedro Facebook",   href: "#" },
-  { label: "Youth Ministry Facebook",      href: "#" },
-  { label: "CFC – Youth for Christ",       href: "#" },
-  { label: "Parish Office Contact",        href: "#" },
-  { label: "Mass Schedule",               href: "#" },
+// Populated from the centralized service configuration when the API is connected.
+export const ENABLED_MASS_REQUESTS: Service[] = []
+
+export const WIZARD_STEPS = [
+  "Select Service",
+  "Requester Information",
+  "Service Details",
+  "Preferred Schedule",
+  "Review & Submit",
+] as const
+
+export const STATUS_COPY = {
+  pending: "Your request is awaiting parish office review.",
+  verified: "The parish office has verified your request.",
+  scheduled: "Your appointment date and time have been confirmed.",
+  rejected: "Your request was not approved. Review the shared instructions, if available.",
+  completed: "Your request has been processed and completed.",
+  cancelled: "This request is no longer active.",
+} as const
+
+export const OFFICE_HOURS = [
+  { day: "Tuesday – Saturday", hours: "8:00 AM – 12:00 NN and 1:30 PM – 4:00 PM" },
+  { day: "Sunday", hours: "5:00 AM – 7:30 AM and 3:00 PM – 6:00 PM", note: "At the church front door" },
+  { day: "Monday", hours: "Closed" },
 ]
 
-export const WIZARD_STEPS = ["Reminders", "Information", "Appointment", "Review", "Finish"] as const
-
-export const REMINDERS = [
-  "Bring a valid government-issued ID when claiming your document at the parish office.",
-  "Requests must be filed at least five (5) working days before the date needed.",
-  "For records dated before 1970, availability cannot be guaranteed; an archivist will verify.",
-  "The parish does not process online payments. Payment may be settled in-person or via bank transfer.",
-  "One request per transaction. Submit a new form for additional documents.",
-  "Ensure all information is accurate. Errors may cause delays or rejection of your request.",
-  "You will receive a reference number upon submission. Keep it for status tracking.",
-]
-
-export const SAMPLE_STATUSES = [
-  { ref: "PDSPA-20250612-4821", name: "Maria Santos",  status: "verified", service: "Baptismal Certificate" },
-  { ref: "PDSPA-20250613-3309", name: "Jose Reyes",    status: "pending",  service: "Certificate of Matrimony" },
-  { ref: "PDSPA-20250610-1177", name: "Ana Lim",       status: "done",     service: "Pamisa — Mass Intention" },
-]
-
-export const SAMPLE_BURIALS = [
-  { name: "Ernesto dela Cruz",       date: "March 14, 1998",    plot: "Section A, Row 3, Plot 12", barangay: "Poblacion" },
-  { name: "Remedios Santos-Reyes",   date: "July 7, 2003",      plot: "Section B, Row 1, Plot 5",  barangay: "Cagaluan" },
-  { name: "Domingo Lim y Taguiam",   date: "November 22, 2011", plot: "Section C, Row 7, Plot 20", barangay: "Palanas" },
+export const SAMPLE_APPOINTMENTS = [
+  {
+    ref: "PDSPA-DEMO-4821",
+    submittedAt: "2025-06-12T08:30:00.000Z",
+    status: "scheduled" as const,
+    approvedDate: "2026-06-18",
+    approvedTime: "9:00 AM",
+    form: {
+      service: "baptismal",
+      firstName: "Maria",
+      middleName: "",
+      lastName: "Santos",
+      suffix: "",
+      birthDate: "1990-05-14",
+      address: "Demonstration address, Vinzons",
+      mobile: "0917 000 0000",
+      email: "maria@example.com",
+      civilStatus: "",
+      parishZone: "",
+      recordName: "Maria Santos",
+      recordDate: "1990-06-10",
+      purpose: "Demonstration request only",
+      preferredDate: "2026-06-17",
+      preferredTime: "9:00 AM",
+    },
+  },
 ]

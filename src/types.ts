@@ -1,36 +1,68 @@
-export type Page = "home" | "about" | "services" | "wizard" | "status" | "search" | "contact"
+export type Page = "home" | "about" | "services" | "wizard" | "status" | "contact"
 export type Step = 1 | 2 | 3 | 4 | 5
 
 export interface FormData {
   service: string
-  lastName: string
   firstName: string
   middleName: string
-  email: string
-  province: string
-  city: string
-  barangay: string
-  street: string
+  lastName: string
+  suffix: string
+  birthDate: string
+  address: string
   mobile: string
-  date: string
-  timeSlot: string
-  paymentMethod: string
-  bankRef: string
-  remarks: string
+  email: string
+  civilStatus: string
+  parishZone: string
+  recordName: string
+  recordDate: string
+  purpose: string
+  preferredDate: string
+  preferredTime: string
 }
 
 export const EMPTY_FORM: FormData = {
-  service: "", lastName: "", firstName: "", middleName: "",
-  email: "", province: "", city: "", barangay: "", street: "",
-  mobile: "", date: "", timeSlot: "", paymentMethod: "in-person",
-  bankRef: "", remarks: "",
+  service: "",
+  firstName: "",
+  middleName: "",
+  lastName: "",
+  suffix: "",
+  birthDate: "",
+  address: "",
+  mobile: "",
+  email: "",
+  civilStatus: "",
+  parishZone: "",
+  recordName: "",
+  recordDate: "",
+  purpose: "",
+  preferredDate: "",
+  preferredTime: "",
 }
 
 export function generateRef(): string {
   const now = new Date()
-  const y = now.getFullYear()
-  const m = String(now.getMonth() + 1).padStart(2, "0")
-  const d = String(now.getDate()).padStart(2, "0")
-  const r = Math.floor(1000 + Math.random() * 9000)
-  return `PDSPA-${y}${m}${d}-${r}`
+  const date = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("")
+  return `PDSPA-${date}-${Math.floor(1000 + Math.random() * 9000)}`
+}
+
+export type AppointmentStatus =
+  | "pending"
+  | "verified"
+  | "scheduled"
+  | "rejected"
+  | "completed"
+  | "cancelled"
+
+export interface Appointment {
+  ref: string
+  submittedAt: string
+  status: AppointmentStatus
+  form: FormData
+  approvedDate?: string
+  approvedTime?: string
+  publicInstruction?: string
 }
